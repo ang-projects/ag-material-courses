@@ -5,6 +5,7 @@ import {setTimeout} from "timers";
 export function searchLessons(req: Request, res: Response) {
   const queryParams = req.query;
   const courseId = queryParams.courseId,
+    filter = queryParams.filter || '',
     sortOrder = queryParams.sortOrder,
     pageNumber = parseInt(<string>queryParams.pageNumber) || 0,
     pageSize = parseInt(<string>queryParams.pageSize);
@@ -12,10 +13,15 @@ export function searchLessons(req: Request, res: Response) {
   // @ts-ignore
   let lessons = Object.values(LESSONS).filter(lesson => lesson.courseId == courseId).sort((l1, l2) => l1.id - l2.id);
 
+  if (filter) {
+    // @ts-ignore
+    lessons = lessons.filter(lesson => lesson.description.trim().toLowerCase().search(filter.toLowerCase()) >= 0);
+  }
+
   if (sortOrder == "desc") {
     lessons = lessons.reverse();
   }
-  const initialPos = pageNumber + pageSize;
+  const initialPos = pageNumber * pageSize;
 
   const lessonsPage = lessons.slice(initialPos, initialPos + pageSize);
 
